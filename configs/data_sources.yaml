@@ -1,0 +1,13 @@
+# Public-data-compatible source registry.
+# The pipeline runs using deterministic synthetic fallback when public/cached files are unavailable.
+rates:
+  preferred_source: fred_h15
+  fallback: synthetic
+  series: [DGS1MO, DGS3MO, DGS6MO, DGS1, DGS2, DGS3, DGS5, DGS7, DGS10, DGS20, DGS30]
+credit_spreads:
+  preferred_source: fred_ice_bofa_oas
+  fallback: synthetic
+  series: [IG_OAS, HY_OAS, A_OAS, BBB_OAS, BB_OAS, B_OAS, CCC_OAS]
+mortgage_proxy:
+  preferred_source: freddie_fannie_ginnie_sample
+  fallback: synthetic

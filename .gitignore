@@ -1,0 +1,40 @@
+﻿# Python / local environment
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Local secrets / env
+.env
+.env.*
+*.key
+*.pem
+
+# Raw / restricted / large local data
+data/raw_public/
+data/local_only/
+data/raw/
+data/external/
+**/*_lld.txt
+**/*.zip
+**/*.7z
+**/*.gz
+**/*.parquet
+**/*.pkl
+**/*.pickle
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+LOCAL_DATA_PATHS.txt

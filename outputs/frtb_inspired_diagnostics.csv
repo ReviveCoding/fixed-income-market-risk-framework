@@ -1,0 +1,4 @@
+risk_factor_family,loss_column,observations,modellable_proxy,liquidity_horizon_days,var_975,es_975,liquidity_horizon_scaled_es_proxy,review_action,scaled_es_contribution_share
+rates,rates_loss,899,True,10,1243205.3137673133,1764065.0712859118,1764065.0712859118,standard_review,0.25912712590909237
+corporate_credit,corporate_credit_loss,899,True,20,2231795.0605413816,3524831.812650419,4984864.954534363,standard_review,0.7322370074318493
+securitized_proxy,securitized_proxy_loss,899,True,60,16577.921583079864,24001.148593283364,58790.567294262495,standard_review,0.00863586665905831

@@ -1,0 +1,67 @@
+{
+  "model_type": "ridge_style_closed_form_var_multiplier_overlay",
+  "alpha": 50.0,
+  "features": [
+    "log_var_99",
+    "rolling_vol",
+    "abs_loss_lag1",
+    "loss_to_var_lag1",
+    "rolling_exception_20",
+    "rolling_exception_60",
+    "rolling_loss_p95_60",
+    "vol_to_var",
+    "credit_loss_share",
+    "securitized_loss_share",
+    "mht",
+    "state_elevated"
+  ],
+  "intercept": 1.0146066456861838,
+  "coefficients": {
+    "log_var_99": 0.0064137054814702565,
+    "rolling_vol": 0.0008518034584437798,
+    "abs_loss_lag1": -0.004108240223442538,
+    "loss_to_var_lag1": -0.000732168984427576,
+    "rolling_exception_20": 0.0145982789979662,
+    "rolling_exception_60": 0.00018444786874360908,
+    "rolling_loss_p95_60": -0.004461153727135245,
+    "vol_to_var": -0.002480486184096931,
+    "credit_loss_share": -0.004397504275578171,
+    "securitized_loss_share": -0.0058747444627955045,
+    "mht": 0.009693875037234182,
+    "state_elevated": 0.007591353920541019
+  },
+  "feature_mean": {
+    "log_var_99": 14.70844931060905,
+    "rolling_vol": 1299610.3177397926,
+    "abs_loss_lag1": 1102845.4797245306,
+    "loss_to_var_lag1": 0.4176082921655932,
+    "rolling_exception_20": 0.4639175257731959,
+    "rolling_exception_60": 1.3917525773195876,
+    "rolling_loss_p95_60": 2484648.8187121977,
+    "vol_to_var": 0.48701877219810813,
+    "credit_loss_share": 0.57357981680364,
+    "securitized_loss_share": 0.03582803983011816,
+    "mht": 160.85051546391753,
+    "state_elevated": 0.5876288659793815
+  },
+  "feature_std": {
+    "log_var_99": 0.332925363287564,
+    "rolling_vol": 627906.111155086,
+    "abs_loss_lag1": 1040685.783611098,
+    "loss_to_var_lag1": 0.3378655034622068,
+    "rolling_exception_20": 0.9395310924127929,
+    "rolling_exception_60": 1.9454239250251761,
+    "rolling_loss_p95_60": 1331640.4821790224,
+    "vol_to_var": 0.058794511343281466,
+    "credit_loss_share": 0.23827965118080355,
+    "securitized_loss_share": 0.01568754233206974,
+    "mht": 76.51058362704333,
+    "state_elevated": 0.49226129428096344
+  },
+  "prediction_clip": [
+    1.0,
+    1.8
+  ],
+  "selected_operations_policy": "residual_corrected_var",
+  "claim_boundary": "trained on local public-compatible/synthetic portfolio outputs; not a production bank model"
+}

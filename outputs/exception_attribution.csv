@@ -1,0 +1,4 @@
+dominant_factor,market_health_state,exceptions,avg_severity,max_severity,exception_share
+corporate_credit,elevated,5,1816645.8483810872,3481996.4179627653,0.5
+corporate_credit,stressed,4,717461.588093218,1146111.0318986783,0.4
+corporate_credit,normal,1,528020.2288616507,528020.2288616507,0.1

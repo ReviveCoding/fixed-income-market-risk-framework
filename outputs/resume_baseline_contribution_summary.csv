@@ -1,0 +1,9 @@
+metric,baseline,baseline_value,method,method_value,absolute_change,relative_reduction_pct,unit,note
+exception_rate,vanilla_var,0.0293663060278207,residual_corrected_var,0.0092735703245749,-0.0200927357032458,68.42105263157914,rate,Primary risk-control metric.
+false_safe_days,vanilla_var,19.0,residual_corrected_var,6.0,-13.0,68.42105263157895,days,Days where realized next-day loss exceeded selected risk number.
+red_days,vanilla_var,19.0,residual_corrected_var,6.0,-13.0,68.42105263157895,days,Breach/escalation days in simulated operations.
+amber_days,vanilla_var,20.0,residual_corrected_var,3.0,-17.0,85.0,days,Review-zone days in simulated operations.
+review_burden_amber_red,vanilla_var,39.0,residual_corrected_var,9.0,-30.0,76.92307692307693,days,Total RED+AMBER review burden.
+p95_limit_utilization,vanilla_var,0.8888936353889786,residual_corrected_var,0.634924025277842,-0.2539696101111366,28.57142857142856,ratio,Lower means lower tail utilization under selected risk number.
+trained_overlay_exception_rate,vanilla_var,0.0293663060278207,trained_var_overlay,0.0278207109737248,-0.0015455950540958982,5.263157894737087,rate,Challenger model improved slightly but was not selected as operations champion.
+trained_overlay_false_safe_days,vanilla_var,19.0,trained_var_overlay,18.0,-1.0,5.263157894736842,days,Challenger model comparison.

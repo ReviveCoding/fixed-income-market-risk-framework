@@ -1,0 +1,36 @@
+name: fimrf-ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies and package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e . --no-deps
+      - name: Import package smoke test
+        run: python -c "import fimrf; print(fimrf.__version__ if hasattr(fimrf, '__version__') else 'fimrf import ok')"
+      - name: Generate cached public-compatible samples
+        run: python scripts/create_public_compatible_samples.py
+      - name: Run full pipeline
+        run: python scripts/run_pipeline.py
+      - name: Run small-data validation
+        run: python scripts/run_small_data_validation.py
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Verify required artifacts
+        run: python scripts/verify_required_artifacts.py

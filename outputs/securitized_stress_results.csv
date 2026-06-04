@@ -1,0 +1,6 @@
+scenario,proxy_tranche_loss,loss_multiplier
+base,272967.62783794274,1.0
+high_prepay,218374.1022703542,0.8
+high_default,600528.7812434741,2.2
+high_severity,464044.96732450265,1.7
+liquidity_spread,368506.2975812227,1.35

@@ -1,0 +1,6 @@
+confidence_levels: [0.95, 0.99]
+regulatory_confidence: 0.99
+rolling_window: 250
+mc_scenarios: 20000
+student_t_df: 5
+seed: 123

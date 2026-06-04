@@ -1,0 +1,4 @@
+check,passed,detail
+monotonic_mean_loss_by_default_multiplier,True,Mean proxy stress loss should increase with worsening stress multiplier.
+monotonic_mean_loss_by_severity_multiplier,True,Mean proxy stress loss should increase with worsening stress multiplier.
+monotonic_mean_loss_by_liquidity_spread_multiplier,True,Mean proxy stress loss should increase with worsening stress multiplier.

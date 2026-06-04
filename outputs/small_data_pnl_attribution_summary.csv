@@ -1,0 +1,2 @@
+observations,actual_hypothetical_corr,mean_absolute_unexplained_ratio,p95_absolute_unexplained_ratio,unexplained_ratio_gate,correlation_gate,pla_proxy_status
+359,0.999840896418944,0.024247681839803043,0.08256812400583873,0.2,0.9,PASS

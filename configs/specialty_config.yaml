@@ -1,0 +1,7 @@
+market_health_timestep:
+  rolling_vol_window: 63
+  n_states: 3
+residual_var_correction:
+  max_multiplier: 1.25
+conservative_envelope:
+  uplift: 0.05

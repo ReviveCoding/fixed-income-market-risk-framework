@@ -1,0 +1,2 @@
+finding_id,severity,finding,recommended_action
+F-001,Low,All release-gate checks passed under offline synthetic/public-compatible boundary,"Review threshold, assumptions, and compensating controls"

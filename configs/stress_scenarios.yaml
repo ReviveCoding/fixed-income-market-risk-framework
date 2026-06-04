@@ -1,0 +1,7 @@
+scenarios:
+  parallel_rate_up_100bp: {rate_bp: 100, credit_bp: 0, securitized_bp: 0}
+  curve_shock_proxy: {rate_bp: 60, credit_bp: 20, securitized_bp: 25}
+  ig_spread_widen_75bp: {rate_bp: 0, credit_bp: 75, securitized_bp: 25}
+  hy_spread_widen_250bp: {rate_bp: 0, credit_bp: 250, securitized_bp: 50}
+  liquidity_spread_shock: {rate_bp: 0, credit_bp: 150, securitized_bp: 175}
+  mortgage_default_severity_shock: {rate_bp: 20, credit_bp: 80, securitized_bp: 250}

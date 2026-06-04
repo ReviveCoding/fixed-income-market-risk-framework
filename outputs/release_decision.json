@@ -1,0 +1,6 @@
+{
+  "reasons": [
+    "All release-gate checks passed under offline synthetic/public-compatible boundary"
+  ],
+  "release_status": "PASS"
+}

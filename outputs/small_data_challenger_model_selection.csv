@@ -1,0 +1,4 @@
+candidate,exception_rate,false_safe_rate,coverage_overreach_proxy,complexity_penalty,target_exception_rate,exception_excess,exception_shortfall,review_score,selected,selection_rationale
+residual_corrected_var,0.004273504273504274,0.004273504273504274,0.004,0.004,0.01,0.0,0.005726495726495726,0.008286324786324786,True,selected champion for review
+vanilla_historical_var,0.01282051282051282,0.01282051282051282,0.0,0.0,0.01,0.00282051282051282,0.0,0.009487179487179486,False,retained as challenger / benchmark
+conservative_tail_envelope,0.004273504273504274,0.004273504273504274,0.025,0.02,0.01,0.0,0.005726495726495726,0.029536324786324786,False,retained as challenger / benchmark

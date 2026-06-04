@@ -1,0 +1,10 @@
+corporate_bonds:
+  n_positions: 240
+  seed: 42
+  ratings: [A, BBB, BB, B, CCC]
+  sectors: [Financials, Industrials, Utilities, Energy, Consumer]
+  maturity_buckets: [2, 4, 6, 8, 12]
+securitized_proxy:
+  n_loans: 800
+  seed: 43
+  tranches: [Senior, Mezzanine, Equity]

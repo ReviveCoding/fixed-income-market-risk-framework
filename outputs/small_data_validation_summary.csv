@@ -1,0 +1,2 @@
+validation_scope,rates_rows,spread_rows,risk_factor_rows,corporate_bonds,mortgage_loans,var_99,es_99,backtest_rows,exception_rate,traffic_light,residual_multiplier,corrected_exception_rate,pnl_attribution_status,pnl_actual_hypothetical_corr,frtb_diag_rows,challenger_selected,reverse_stress_rows,data_quality_exceptions,status
+small_data_smoke,360,360,359,40,80,189840.44800865368,206723.26863188596,234,0.01282051282051282,green,1.2344405202214919,0.004273504273504274,PASS,0.999840896418944,3,residual_corrected_var,6,18,PASS

@@ -1,0 +1,4 @@
+module,exception_rate,relative_change_vs_vanilla
+vanilla_historical_var,0.015408320493066256,0.0
+residual_var_correction,0.0061633281972265025,-0.009244992295839752
+conservative_risk_envelope,0.004622496147919877,-0.01078582434514638

@@ -1,0 +1,19 @@
+[project]
+name = "fixed-income-market-risk-framework"
+version = "0.1.0"
+description = "Offline fixed-income market risk model development framework"
+requires-python = ">=3.10"
+dependencies = ["numpy", "pandas", "pytest", "pyarrow"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["fimrf*"]

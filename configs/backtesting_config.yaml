@@ -1,0 +1,4 @@
+rolling_window: 250
+confidence: 0.99
+traffic_light_green_max: 4
+traffic_light_yellow_max: 9

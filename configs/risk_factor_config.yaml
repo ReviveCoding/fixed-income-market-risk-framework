@@ -1,0 +1,4 @@
+frequency: business_day
+fallback_days: 900
+outlier_z_threshold: 5.0
+stale_quote_days: 3

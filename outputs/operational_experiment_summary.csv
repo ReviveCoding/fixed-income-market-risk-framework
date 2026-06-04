@@ -1,0 +1,11 @@
+metric,value
+training_rows,388
+validation_rows,129
+test_rows,130
+selected_alpha,50.0
+selected_operations_policy,residual_corrected_var
+test_vanilla_exception_rate,0.0
+test_trained_exception_rate,0.0
+operations_red_days,6
+operations_amber_days,3
+operations_green_days,638

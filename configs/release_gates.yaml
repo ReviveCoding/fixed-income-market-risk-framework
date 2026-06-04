@@ -1,0 +1,4 @@
+max_var_exception_rate_99: 0.025
+max_false_safe_rate: 0.10
+min_reports_required: 8
+release_statuses: [PASS, REVIEW, BLOCK]

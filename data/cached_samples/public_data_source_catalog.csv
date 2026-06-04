@@ -1,0 +1,23 @@
+domain,framework_column,official_series_id,source,role
+rates,DGS1MO,DGS1MO,Federal Reserve H.15 via FRED,1-month Treasury constant maturity / bill-style short-rate factor
+rates,DGS3MO,DGS3MO,Federal Reserve H.15 via FRED,3-month Treasury short-rate factor
+rates,DGS6MO,DGS6MO,Federal Reserve H.15 via FRED,6-month Treasury short-rate factor
+rates,DGS1,DGS1,Federal Reserve H.15 via FRED,1-year Treasury curve point
+rates,DGS2,DGS2,Federal Reserve H.15 via FRED,2-year Treasury curve point
+rates,DGS3,DGS3,Federal Reserve H.15 via FRED,3-year Treasury curve point
+rates,DGS5,DGS5,Federal Reserve H.15 via FRED,5-year Treasury curve point
+rates,DGS7,DGS7,Federal Reserve H.15 via FRED,7-year Treasury curve point
+rates,DGS10,DGS10,Federal Reserve H.15 via FRED,10-year Treasury curve point
+rates,DGS20,DGS20,Federal Reserve H.15 via FRED,20-year Treasury curve point
+rates,DGS30,DGS30,Federal Reserve H.15 via FRED,30-year Treasury curve point
+credit_spread,IG_OAS,BAMLC0A0CM,FRED ICE BofA US Corporate Index OAS,investment-grade corporate credit spread factor
+credit_spread,HY_OAS,BAMLH0A0HYM2,FRED ICE BofA US High Yield Index OAS,high-yield corporate credit spread factor
+credit_spread,A_OAS,BAMLC0A3CA,FRED ICE BofA Single-A US Corporate Index OAS,A-rated corporate credit spread factor
+credit_spread,BBB_OAS,BAMLC0A4CBBB,FRED ICE BofA BBB US Corporate Index OAS,BBB-rated corporate credit spread factor
+credit_spread,BB_OAS,BAMLH0A1HYBB,FRED ICE BofA BB US High Yield Index OAS,BB-rated high-yield spread factor
+credit_spread,B_OAS,BAMLH0A2HYB,FRED ICE BofA Single-B US High Yield Index OAS,B-rated high-yield spread factor
+credit_spread,CCC_OAS,BAMLH0A3HYC,FRED ICE BofA CCC & Lower US High Yield Index OAS,CCC-and-lower high-yield spread factor
+mortgage_proxy,fico,Freddie/Fannie-style loan performance field,Freddie Mac/Fannie Mae loan performance schema,borrower credit-quality proxy for prepayment/default stress
+mortgage_proxy,ltv,Freddie/Fannie-style loan performance field,Freddie Mac/Fannie Mae loan performance schema,collateral leverage proxy for default/severity stress
+mortgage_proxy,balance,Freddie/Fannie-style loan performance field,Freddie Mac/Fannie Mae loan performance schema,loan balance supporting pool cash-flow and tranche waterfall
+mortgage_proxy,delinquency_proxy,derived from loan performance status,public-performance-compatible proxy,default transition proxy; not actual loan-level disclosure
