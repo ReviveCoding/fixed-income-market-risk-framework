@@ -21,17 +21,14 @@ This is a non-production portfolio framework. It does **not** use J.P. Morgan da
 9. Adds reliability-focused specialty modules: Market Health Timestep, residual VaR correction, conservative risk envelope, false-safe diagnostics, and specialty ablation.
 10. Generates model-risk documentation: methodology notes, validation memo, regulatory mapping, limitations, compensating controls, and executive summary.
 
+## Public-data and governance updates
 
-
-## Upgrade notes in this version
-
-This upgraded version adds five screening-oriented improvements for the JPMC Market Risk Model Development role:
+The repository includes the following additions for public-data compatibility and model validation:
 
 1. `scripts/create_public_compatible_samples.py` creates cached public-compatible samples and a source catalog so the pipeline can demonstrate public-data schema readiness without requiring live internet access.
 2. `outputs/model_inventory.csv` and `reports/model_inventory.md` register model components, inputs, validation tests, limitations, and controls.
 3. `reports/public_data_readiness_report.md` documents whether the run used live FRED data, cached public-compatible samples, or deterministic fallback.
-4. `reports/jpmc_market_risk_role_alignment.md` summarizes how the project maps to Fixed Income market risk, Corporate Credit, Securitized Products proxy modeling, VaR/ES, backtesting, assumption impact, and model governance.
-5. The governance packet now separates regulatory-style evidence from prohibited overclaims such as production regulatory capital, real JPMC data, or desk-approved securitized-products pricing.
+4. The governance packet separates regulatory-style evidence from prohibited overclaims such as production regulatory capital, real JPMC data, or desk-approved securitized-products pricing.
 
 ## Quick start
 
@@ -91,14 +88,9 @@ The framework is built around the following public-data-compatible layers:
 - Freddie Mac / Fannie Mae / Ginnie Mae style mortgage-performance or disclosure schemas for securitized-products proxy modeling.
 - Synthetic positions and deterministic fallback samples for reproducible local execution.
 
-## Resume-safe positioning
+## Backtesting and stress extensions
 
-Built an end-to-end offline fixed-income market-risk model development framework using public Treasury-rate, ICE BofA corporate-credit spread, and public mortgage-performance/disclosure-compatible data schemas with synthetic corporate-bond and securitized-products proxy portfolios, covering market-data validation, risk-factor construction, spread-adjusted valuation, DV01/CS01/OAS01 sensitivities, VaR/Expected Shortfall, stressed VaR, scenario stress testing, rolling backtesting, assumption-impact analysis, specialty ablations, and model-risk documentation under explicit public-data/synthetic-portfolio boundaries.
-
-
-## v3 Enhancement Loop Additions
-
-This upgraded version includes a complete weakness-analysis and reinforcement loop:
+The validation suite also includes:
 
 - 250-day traffic-light backtesting proxy
 - VaR exception attribution by dominant risk component and market-health state
@@ -125,10 +117,9 @@ python scripts/run_all_checks.py
 
 Claim boundary: offline framework, public-data-compatible loaders, cached public-style samples, deterministic synthetic fallback, synthetic portfolio, securitized-products proxy, and regulatory-style documentation. No proprietary bank data, production trading-desk portfolio, production MBS/ABS model, or regulatory capital certification is claimed.
 
+## Expanded model-risk diagnostics
 
-## V4 Final Review-Depth Upgrade
-
-The V4 package adds model-risk review depth beyond the original VaR/stress/backtesting framework:
+Additional diagnostics extend the original VaR, stress-testing, and backtesting workflow:
 
 - Actual-vs-hypothetical P&L attribution proxy.
 - FRTB-inspired ES, liquidity-horizon, and modellability-proxy diagnostics.
@@ -173,4 +164,4 @@ Boundary: this is an offline/public-data-compatible framework with deterministic
 
 This project includes a local/offline fixed-income market-risk model development workflow with public-compatible Treasury/OAS samples, synthetic corporate-credit portfolios, Freddie Mac CRT-enhanced local mortgage proxy validation, VaR/ES, stressed VaR, rolling backtesting, P&L attribution proxy, FRTB-inspired diagnostics, reverse stress testing, trained VaR overlay, daily risk operations simulation, and function/performance evaluation reports.
 
-Resume-safe baseline contribution from the local operations experiment: selected residual-corrected VaR reduced simulated exception rate from 2.94% to 0.93%, false-safe days from 19 to 6, and RED/AMBER review burden from 39 to 9 days under explicit public-data/synthetic-portfolio boundaries.
+In the simulated local operations experiment, selected residual-corrected VaR reduced simulated exception rate from 2.94% to 0.93%, false-safe days from 19 to 6, and RED/AMBER review burden from 39 to 9 days under explicit public-data/synthetic-portfolio boundaries.
