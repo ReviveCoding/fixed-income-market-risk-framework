@@ -20,12 +20,13 @@ def write_json(path: str | Path, data: dict) -> None:
 
 
 def write_markdown(path: str | Path, title: str, sections: list[tuple[str, str]]) -> None:
-    text = [f"# {title}\n"]
+    """Write a report with stable section spacing and UTF-8 encoding."""
+    lines = [f"# {title}\n"]
     for heading, body in sections:
-        text.append(f"## {heading}\n\n{body.strip()}\n")
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text("\n".join(text), encoding="utf-8")
+        lines.append(f"## {heading}\n\n{body.strip()}\n")
+    output = Path(path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("\n".join(lines), encoding="utf-8")
 
 
 def save_table(df: pd.DataFrame, path: str | Path) -> None:
@@ -53,4 +54,4 @@ def chi2_sf_df2(x: float) -> float:
 
 
 def pct(x: float) -> str:
-    return f"{100*x:.2f}%"
+    return f"{100 * x:.2f}%"
