@@ -25,6 +25,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install -e . --no-deps
+      - name: Verify dependency consistency
+        run: python -m pip check
+      - name: Byte-compile Python sources
+        run: python -m compileall -q src tests scripts
       - name: Import package smoke test
         run: python -c "import fimrf; print(fimrf.__version__ if hasattr(fimrf, '__version__') else 'fimrf import ok')"
       - name: Generate cached public-compatible samples
