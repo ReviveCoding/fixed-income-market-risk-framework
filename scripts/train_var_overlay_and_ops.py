@@ -1,7 +1,8 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
-from pathlib import Path
 import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -57,22 +58,46 @@ def build_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
     )
 
     x["abs_loss_lag1"] = x["total_loss"].abs().shift(1)
-    x["loss_to_var_lag1"] = (x["total_loss"].abs().shift(1) / x["var_99"].shift(1)).replace([np.inf, -np.inf], np.nan)
-    x["rolling_exception_20"] = x["exception"].astype(float).rolling(20, min_periods=1).sum().shift(1)
-    x["rolling_exception_60"] = x["exception"].astype(float).rolling(60, min_periods=1).sum().shift(1)
-    x["rolling_loss_p95_60"] = x["total_loss"].abs().rolling(60, min_periods=20).quantile(0.95).shift(1)
-    x["vol_to_var"] = x.get("rolling_vol", pd.Series(0, index=x.index)) / x["var_99"].replace(0, np.nan)
-    x["credit_loss_share"] = x.get("corporate_credit_loss", pd.Series(0, index=x.index)).abs() / total_abs_components
-    x["securitized_loss_share"] = x.get("securitized_proxy_loss", pd.Series(0, index=x.index)).abs() / total_abs_components
-    x["mht"] = pd.to_numeric(x.get("market_health_timestep", 0), errors="coerce").fillna(0)
+    x["loss_to_var_lag1"] = (
+        x["total_loss"].abs().shift(1) / x["var_99"].shift(1)
+    ).replace([np.inf, -np.inf], np.nan)
+    x["rolling_exception_20"] = (
+        x["exception"].astype(float).rolling(20, min_periods=1).sum().shift(1)
+    )
+    x["rolling_exception_60"] = (
+        x["exception"].astype(float).rolling(60, min_periods=1).sum().shift(1)
+    )
+    x["rolling_loss_p95_60"] = (
+        x["total_loss"].abs().rolling(60, min_periods=20).quantile(0.95).shift(1)
+    )
+    x["vol_to_var"] = x.get("rolling_vol", pd.Series(0, index=x.index)) / x[
+        "var_99"
+    ].replace(0, np.nan)
+    x["credit_loss_share"] = (
+        x.get("corporate_credit_loss", pd.Series(0, index=x.index)).abs()
+        / total_abs_components
+    )
+    x["securitized_loss_share"] = (
+        x.get("securitized_proxy_loss", pd.Series(0, index=x.index)).abs()
+        / total_abs_components
+    )
+    x["mht"] = pd.to_numeric(
+        x.get("market_health_timestep", 0), errors="coerce"
+    ).fillna(0)
 
-    state = x.get("market_health_state", pd.Series("normal", index=x.index)).astype(str).str.lower()
+    state = (
+        x.get("market_health_state", pd.Series("normal", index=x.index))
+        .astype(str)
+        .str.lower()
+    )
     x["state_elevated"] = state.str.contains("elevated|stress").astype(float)
     x["log_var_99"] = np.log1p(x["var_99"].clip(lower=0))
 
     # Risk number on date t is evaluated against next observed loss.
     x["next_day_loss"] = x["total_loss"].abs().shift(-1)
-    x["target_multiplier"] = (x["next_day_loss"] / x["var_99"]).replace([np.inf, -np.inf], np.nan)
+    x["target_multiplier"] = (x["next_day_loss"] / x["var_99"]).replace(
+        [np.inf, -np.inf], np.nan
+    )
     x["target_multiplier"] = x["target_multiplier"].clip(lower=1.0, upper=1.80)
 
     feature_cols = [
@@ -96,7 +121,9 @@ def build_features(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
         x[c] = pd.to_numeric(x[c], errors="coerce")
 
     x[feature_cols] = x[feature_cols].replace([np.inf, -np.inf], np.nan)
-    x = x.dropna(subset=feature_cols + ["target_multiplier", "next_day_loss", "var_99"]).reset_index(drop=True)
+    x = x.dropna(
+        subset=feature_cols + ["target_multiplier", "next_day_loss", "var_99"]
+    ).reset_index(drop=True)
     return x, feature_cols
 
 
@@ -107,7 +134,9 @@ def chronological_split(n: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return idx[:train_end], idx[train_end:valid_end], idx[valid_end:]
 
 
-def fit_ridge(X: np.ndarray, y: np.ndarray, alpha: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def fit_ridge(
+    X: np.ndarray, y: np.ndarray, alpha: float
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     mean = X.mean(axis=0)
     std = X.std(axis=0)
     std[std == 0] = 1.0
@@ -121,13 +150,17 @@ def fit_ridge(X: np.ndarray, y: np.ndarray, alpha: float) -> tuple[np.ndarray, n
     return beta, mean, std
 
 
-def predict_ridge(X: np.ndarray, beta: np.ndarray, mean: np.ndarray, std: np.ndarray) -> np.ndarray:
+def predict_ridge(
+    X: np.ndarray, beta: np.ndarray, mean: np.ndarray, std: np.ndarray
+) -> np.ndarray:
     Xs = (X - mean) / std
     Xb = np.c_[np.ones(len(Xs)), Xs]
     return Xb @ beta
 
 
-def evaluate_policy(loss: pd.Series, risk_number: pd.Series, base_var: pd.Series) -> dict:
+def evaluate_policy(
+    loss: pd.Series, risk_number: pd.Series, base_var: pd.Series
+) -> dict:
     loss = pd.to_numeric(loss, errors="coerce").abs()
     risk_number = pd.to_numeric(risk_number, errors="coerce")
     base_var = pd.to_numeric(base_var, errors="coerce")
@@ -145,12 +178,20 @@ def evaluate_policy(loss: pd.Series, risk_number: pd.Series, base_var: pd.Series
         "exception_rate": float(exceptions.mean()) if len(exceptions) else np.nan,
         "exception_count": int(exceptions.sum()) if len(exceptions) else 0,
         "mean_utilization": float(utilization.mean()) if len(utilization) else np.nan,
-        "p95_utilization": float(utilization.quantile(0.95)) if len(utilization) else np.nan,
+        "p95_utilization": float(utilization.quantile(0.95))
+        if len(utilization)
+        else np.nan,
         "false_safe_days": int(exceptions.sum()) if len(exceptions) else 0,
-        "avg_overconservatism": float((risk_number / base_var - 1.0).mean()) if len(risk_number) else np.nan,
-        "review_burden_amber_red": int((utilization >= 0.85).sum()) if len(utilization) else 0,
+        "avg_overconservatism": float((risk_number / base_var - 1.0).mean())
+        if len(risk_number)
+        else np.nan,
+        "review_burden_amber_red": int((utilization >= 0.85).sum())
+        if len(utilization)
+        else 0,
         "red_days": int((utilization >= 1.0).sum()) if len(utilization) else 0,
-        "amber_days": int(((utilization >= 0.85) & (utilization < 1.0)).sum()) if len(utilization) else 0,
+        "amber_days": int(((utilization >= 0.85) & (utilization < 1.0)).sum())
+        if len(utilization)
+        else 0,
     }
 
 
@@ -183,7 +224,9 @@ def main() -> None:
     df["predicted_var_multiplier"] = pred
     df["trained_overlay_var_99"] = df["var_99"] * df["predicted_var_multiplier"]
     df["vanilla_exception_next_day"] = df["next_day_loss"] > df["var_99"]
-    df["trained_exception_next_day"] = df["next_day_loss"] > df["trained_overlay_var_99"]
+    df["trained_exception_next_day"] = (
+        df["next_day_loss"] > df["trained_overlay_var_99"]
+    )
 
     df["split"] = "train"
     df.loc[valid_idx, "split"] = "validation"
@@ -196,17 +239,25 @@ def main() -> None:
             continue
 
         vanilla = evaluate_policy(part["next_day_loss"], part["var_99"], part["var_99"])
-        trained = evaluate_policy(part["next_day_loss"], part["trained_overlay_var_99"], part["var_99"])
+        trained = evaluate_policy(
+            part["next_day_loss"], part["trained_overlay_var_99"], part["var_99"]
+        )
 
         eval_rows.append({"split": split_name, "policy": "vanilla_var", **vanilla})
-        eval_rows.append({"split": split_name, "policy": "trained_var_overlay", **trained})
+        eval_rows.append(
+            {"split": split_name, "policy": "trained_var_overlay", **trained}
+        )
 
     eval_df = pd.DataFrame(eval_rows)
 
     var_es_path = OUTPUTS / "var_es_by_portfolio.csv"
     if var_es_path.exists():
         ve = pd.read_csv(var_es_path)
-        stressed_const = float(ve["stressed_var_99"].iloc[0]) if "stressed_var_99" in ve.columns else float(df["var_99"].quantile(0.99))
+        stressed_const = (
+            float(ve["stressed_var_99"].iloc[0])
+            if "stressed_var_99" in ve.columns
+            else float(df["var_99"].quantile(0.99))
+        )
     else:
         stressed_const = float(df["var_99"].quantile(0.99))
 
@@ -227,11 +278,13 @@ def main() -> None:
     ops["corrected_var_99"] = ops["corrected_var_99"].fillna(ops["var_99"] * 1.25)
     ops["stress_gate_var_99"] = np.maximum(ops["var_99"], stressed_const * 0.50)
 
-    ops["conservative_envelope_var_99"] = np.maximum.reduce([
-        ops["var_99"].to_numpy(),
-        ops["corrected_var_99"].to_numpy(),
-        ops["trained_overlay_var_99"].to_numpy(),
-    ])
+    ops["conservative_envelope_var_99"] = np.maximum.reduce(
+        [
+            ops["var_99"].to_numpy(),
+            ops["corrected_var_99"].to_numpy(),
+            ops["trained_overlay_var_99"].to_numpy(),
+        ]
+    )
 
     ops["hybrid_operations_var_99"] = np.maximum(
         ops["trained_overlay_var_99"],
@@ -249,7 +302,12 @@ def main() -> None:
 
     policy_rows = []
     for policy, col in policy_cols.items():
-        policy_rows.append({"policy": policy, **evaluate_policy(ops["next_day_loss"], ops[col], ops["var_99"])})
+        policy_rows.append(
+            {
+                "policy": policy,
+                **evaluate_policy(ops["next_day_loss"], ops[col], ops["var_99"]),
+            }
+        )
 
     policy_df = pd.DataFrame(policy_rows)
     policy_df["review_efficiency_score"] = (
@@ -258,7 +316,9 @@ def main() -> None:
         + policy_df["review_burden_amber_red"].fillna(0) / max(len(ops), 1)
     )
 
-    selected_policy = policy_df.sort_values(["exception_rate", "review_efficiency_score"]).iloc[0]["policy"]
+    selected_policy = policy_df.sort_values(
+        ["exception_rate", "review_efficiency_score"]
+    ).iloc[0]["policy"]
 
     ops["selected_policy"] = selected_policy
     ops["selected_policy_var_99"] = ops[policy_cols[selected_policy]]
@@ -327,20 +387,48 @@ def main() -> None:
 
     ops[ops_cols].to_csv(OPS_LOG_CSV, index=False)
     policy_df.to_csv(POLICY_CSV, index=False)
-    ops[ops_cols][ops["risk_zone"].isin(["AMBER", "RED"])].to_csv(ACTION_CSV, index=False)
+    ops[ops_cols][ops["risk_zone"].isin(["AMBER", "RED"])].to_csv(
+        ACTION_CSV, index=False
+    )
 
-    summary = pd.DataFrame([
-        {"metric": "training_rows", "value": len(train_idx)},
-        {"metric": "validation_rows", "value": len(valid_idx)},
-        {"metric": "test_rows", "value": len(test_idx)},
-        {"metric": "selected_alpha", "value": alpha},
-        {"metric": "selected_operations_policy", "value": selected_policy},
-        {"metric": "test_vanilla_exception_rate", "value": float(eval_df[(eval_df.split == "test") & (eval_df.policy == "vanilla_var")]["exception_rate"].iloc[0])},
-        {"metric": "test_trained_exception_rate", "value": float(eval_df[(eval_df.split == "test") & (eval_df.policy == "trained_var_overlay")]["exception_rate"].iloc[0])},
-        {"metric": "operations_red_days", "value": int((ops["risk_zone"] == "RED").sum())},
-        {"metric": "operations_amber_days", "value": int((ops["risk_zone"] == "AMBER").sum())},
-        {"metric": "operations_green_days", "value": int((ops["risk_zone"] == "GREEN").sum())},
-    ])
+    summary = pd.DataFrame(
+        [
+            {"metric": "training_rows", "value": len(train_idx)},
+            {"metric": "validation_rows", "value": len(valid_idx)},
+            {"metric": "test_rows", "value": len(test_idx)},
+            {"metric": "selected_alpha", "value": alpha},
+            {"metric": "selected_operations_policy", "value": selected_policy},
+            {
+                "metric": "test_vanilla_exception_rate",
+                "value": float(
+                    eval_df[
+                        (eval_df.split == "test") & (eval_df.policy == "vanilla_var")
+                    ]["exception_rate"].iloc[0]
+                ),
+            },
+            {
+                "metric": "test_trained_exception_rate",
+                "value": float(
+                    eval_df[
+                        (eval_df.split == "test")
+                        & (eval_df.policy == "trained_var_overlay")
+                    ]["exception_rate"].iloc[0]
+                ),
+            },
+            {
+                "metric": "operations_red_days",
+                "value": int((ops["risk_zone"] == "RED").sum()),
+            },
+            {
+                "metric": "operations_amber_days",
+                "value": int((ops["risk_zone"] == "AMBER").sum()),
+            },
+            {
+                "metric": "operations_green_days",
+                "value": int((ops["risk_zone"] == "GREEN").sum()),
+            },
+        ]
+    )
 
     summary.to_csv(SUMMARY_CSV, index=False)
 
@@ -360,7 +448,7 @@ A lightweight ridge-style closed-form regression model was trained to predict a 
 
 ## Features
 
-{', '.join(features)}
+{", ".join(features)}
 
 ## Evaluation
 
@@ -393,7 +481,7 @@ Simulate a daily market-risk operating workflow using generated VaR, residual-co
 
 ## Action distribution
 
-{ops['risk_zone'].value_counts().rename_axis('risk_zone').reset_index(name='days').to_markdown(index=False)}
+{ops["risk_zone"].value_counts().rename_axis("risk_zone").reset_index(name="days").to_markdown(index=False)}
 
 ## Interpretation
 

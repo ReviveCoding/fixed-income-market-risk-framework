@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from fimrf.pipeline import run_pipeline
 
 

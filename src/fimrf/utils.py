@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
 import json
 import math
+from pathlib import Path
+
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -19,7 +20,9 @@ def write_json(path: str | Path, data: dict) -> None:
     path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
 
 
-def write_markdown(path: str | Path, title: str, sections: list[tuple[str, str]]) -> None:
+def write_markdown(
+    path: str | Path, title: str, sections: list[tuple[str, str]]
+) -> None:
     """Write a report with stable section spacing and UTF-8 encoding."""
     lines = [f"# {title}\n"]
     for heading, body in sections:

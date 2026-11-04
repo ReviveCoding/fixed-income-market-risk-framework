@@ -1,9 +1,9 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
-
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw_public" / "freddie_crt"
@@ -68,7 +68,9 @@ def normalize_one(path: Path, max_rows: int = 30000) -> pd.DataFrame:
     coupon = num(col(df, 11), 6.5)
     original_balance = num(col(df, 12))
     current_balance = num(col(df, 13))
-    balance = current_balance.where(current_balance.notna() & (current_balance > 0), original_balance)
+    balance = current_balance.where(
+        current_balance.notna() & (current_balance > 0), original_balance
+    )
 
     fico = clean_9999(num(col(df, 22))).fillna(720).clip(lower=300, upper=850)
 

@@ -1,34 +1,58 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import pandas as pd
 
-from fimrf.utils import ensure_dirs, save_table, write_json
+from fimrf.backtesting.tests import rolling_var_backtest
 from fimrf.data_ingestion.source_registry import load_market_data, load_mortgage_pool
 from fimrf.data_validation.data_quality_rules import validate_time_series
-from fimrf.risk_factors.build_curve_factors import build_curve_factors
-from fimrf.risk_factors.build_credit_spread_factors import build_credit_spread_factors
-from fimrf.risk_factors.covariance import merge_risk_factors
-from fimrf.instruments.corporate_bond import generate_corporate_bonds, compute_sensitivities, corporate_daily_losses
-from fimrf.instruments.securitized_proxy import build_tranche_cashflows, securitized_daily_losses, securitized_scenario_stress
-from fimrf.instruments.securitized_grid import securitized_stress_grid, securitized_grid_quality_checks
-from fimrf.risk_models.var import historical_var, expected_shortfall, monte_carlo_var, stressed_var
-from fimrf.risk_models.stress_testing import run_stress_scenarios
-from fimrf.backtesting.tests import rolling_var_backtest
+from fimrf.governance.enhancement_reports import generate_enhancement_reports
+from fimrf.governance.reports import generate_reports
+from fimrf.instruments.corporate_bond import (
+    compute_sensitivities,
+    corporate_daily_losses,
+    generate_corporate_bonds,
+)
+from fimrf.instruments.securitized_grid import (
+    securitized_grid_quality_checks,
+    securitized_stress_grid,
+)
+from fimrf.instruments.securitized_proxy import (
+    build_tranche_cashflows,
+    securitized_daily_losses,
+    securitized_scenario_stress,
+)
 from fimrf.model_development.assumption_sensitivity import assumption_sensitivity
-from fimrf.model_development.backtesting_enhancements import traffic_light_backtest, exception_attribution, var_stability_diagnostics
-from fimrf.model_development.pnl_attribution_proxy import pnl_attribution_proxy
-from fimrf.model_development.frtb_inspired_diagnostics import frtb_inspired_diagnostics
+from fimrf.model_development.backtesting_enhancements import (
+    exception_attribution,
+    traffic_light_backtest,
+    var_stability_diagnostics,
+)
 from fimrf.model_development.challenger_selection import challenger_selection
+from fimrf.model_development.frtb_inspired_diagnostics import frtb_inspired_diagnostics
+from fimrf.model_development.pnl_attribution_proxy import pnl_attribution_proxy
+from fimrf.model_development.release_gate import decide_release
 from fimrf.model_development.reverse_stress import reverse_stress_diagnostics
 from fimrf.reproducibility.manifest import build_reproducibility_manifest
+from fimrf.risk_factors.build_credit_spread_factors import build_credit_spread_factors
+from fimrf.risk_factors.build_curve_factors import build_curve_factors
+from fimrf.risk_factors.covariance import merge_risk_factors
+from fimrf.risk_models.stress_testing import run_stress_scenarios
+from fimrf.risk_models.var import (
+    expected_shortfall,
+    historical_var,
+    monte_carlo_var,
+    stressed_var,
+)
+from fimrf.specialty.conservative_risk_envelope import (
+    conservative_envelope,
+    false_safe_metrics,
+)
 from fimrf.specialty.market_health_timestep import assign_market_health_timestep
 from fimrf.specialty.residual_var_correction import residual_var_correction
-from fimrf.specialty.conservative_risk_envelope import conservative_envelope, false_safe_metrics
 from fimrf.specialty.specialty_ablation import build_specialty_ablation
-from fimrf.model_development.release_gate import decide_release
-from fimrf.governance.reports import generate_reports
-from fimrf.governance.enhancement_reports import generate_enhancement_reports
+from fimrf.utils import ensure_dirs, save_table, write_json
 
 
 def run_pipeline(root: str | Path | None = None) -> dict:
@@ -69,7 +93,11 @@ def run_pipeline(root: str | Path | None = None) -> dict:
     corp_losses = corporate_daily_losses(sens, panel)
     sec_losses = securitized_daily_losses(panel, tranche_summary)
     losses = corp_losses.merge(sec_losses, on="date", how="inner")
-    losses["total_loss"] = losses["rates_loss"] + losses["corporate_credit_loss"] + losses["securitized_proxy_loss"]
+    losses["total_loss"] = (
+        losses["rates_loss"]
+        + losses["corporate_credit_loss"]
+        + losses["securitized_proxy_loss"]
+    )
     losses = assign_market_health_timestep(losses)
     save_table(losses, outputs / "portfolio_loss_panel.csv")
 
@@ -79,18 +107,22 @@ def run_pipeline(root: str | Path | None = None) -> dict:
     mc_g_var, mc_g_es = monte_carlo_var(losses["total_loss"], 0.99, student_t_df=None)
     mc_t_var, mc_t_es = monte_carlo_var(losses["total_loss"], 0.99, student_t_df=5)
     stressed = stressed_var(losses, "total_loss", 250, 0.99)
-    var_table = pd.DataFrame([{
-        "portfolio": "total_fixed_income_proxy",
-        "historical_var_95": hist95,
-        "historical_var_99": hist99,
-        "historical_es_99": es99,
-        "mc_gaussian_var_99": mc_g_var,
-        "mc_gaussian_es_99": mc_g_es,
-        "mc_student_t_var_99": mc_t_var,
-        "mc_student_t_es_99": mc_t_es,
-        "ten_day_scaled_var_99": hist99 * (10 ** 0.5),
-        "stressed_var_99": stressed["stressed_var"],
-    }])
+    var_table = pd.DataFrame(
+        [
+            {
+                "portfolio": "total_fixed_income_proxy",
+                "historical_var_95": hist95,
+                "historical_var_99": hist99,
+                "historical_es_99": es99,
+                "mc_gaussian_var_99": mc_g_var,
+                "mc_gaussian_es_99": mc_g_es,
+                "mc_student_t_var_99": mc_t_var,
+                "mc_student_t_es_99": mc_t_es,
+                "ten_day_scaled_var_99": hist99 * (10**0.5),
+                "stressed_var_99": stressed["stressed_var"],
+            }
+        ]
+    )
     save_table(var_table, outputs / "var_es_by_portfolio.csv")
     save_table(pd.DataFrame([stressed]), outputs / "stressed_var_results.csv")
 
@@ -106,9 +138,13 @@ def run_pipeline(root: str | Path | None = None) -> dict:
     frtb_diag = frtb_inspired_diagnostics(losses)
     save_table(frtb_diag, outputs / "frtb_inspired_diagnostics.csv")
 
-    backtest_df, backtest_summary = rolling_var_backtest(losses, "total_loss", 250, 0.99)
+    backtest_df, backtest_summary = rolling_var_backtest(
+        losses, "total_loss", 250, 0.99
+    )
     save_table(backtest_df, outputs / "backtesting_exceptions.csv")
-    save_table(pd.DataFrame([backtest_summary]), outputs / "kupiec_christoffersen_results.csv")
+    save_table(
+        pd.DataFrame([backtest_summary]), outputs / "kupiec_christoffersen_results.csv"
+    )
     traffic_light = traffic_light_backtest(backtest_df, evaluation_days=250)
     exception_attr = exception_attribution(losses, backtest_df)
     stability = var_stability_diagnostics(losses)
@@ -126,16 +162,39 @@ def run_pipeline(root: str | Path | None = None) -> dict:
     challengers = challenger_selection(backtest_df, corrected_df, envelope, false_safe)
     save_table(corrected_df, outputs / "corrected_backtesting_exceptions.csv")
     save_table(ablation, outputs / "specialty_ablation_table.csv")
-    save_table(pd.DataFrame([{**false_safe, "correction_multiplier": correction_multiplier, "conservative_envelope": envelope}]), outputs / "false_safe_metrics.csv")
+    save_table(
+        pd.DataFrame(
+            [
+                {
+                    **false_safe,
+                    "correction_multiplier": correction_multiplier,
+                    "conservative_envelope": envelope,
+                }
+            ]
+        ),
+        outputs / "false_safe_metrics.csv",
+    )
     save_table(challengers, outputs / "challenger_model_selection.csv")
 
-    release_status, reasons = decide_release(backtest_summary, false_safe["false_safe_rate"], required_reports_found=15)
-    findings = pd.DataFrame([
-        {"finding_id": "F-001", "severity": "Medium" if release_status != "PASS" else "Low", "finding": r, "recommended_action": "Review threshold, assumptions, and compensating controls"}
-        for r in reasons
-    ])
+    release_status, reasons = decide_release(
+        backtest_summary, false_safe["false_safe_rate"], required_reports_found=15
+    )
+    findings = pd.DataFrame(
+        [
+            {
+                "finding_id": "F-001",
+                "severity": "Medium" if release_status != "PASS" else "Low",
+                "finding": r,
+                "recommended_action": "Review threshold, assumptions, and compensating controls",
+            }
+            for r in reasons
+        ]
+    )
     save_table(findings, outputs / "model_risk_findings.csv")
-    write_json(outputs / "release_decision.json", {"release_status": release_status, "reasons": reasons})
+    write_json(
+        outputs / "release_decision.json",
+        {"release_status": release_status, "reasons": reasons},
+    )
 
     context = {
         "data_source": source_mode,
@@ -152,27 +211,46 @@ def run_pipeline(root: str | Path | None = None) -> dict:
     write_json(outputs / "reproducibility_metadata.json", manifest_meta)
     # Regenerate reports after manifest creation so the reproducibility report can include current hashes.
     generate_enhancement_reports(root)
-    write_json(outputs / "run_summary.json", {
-        **context,
-        "n_risk_factor_days": int(len(panel)),
-        "n_corporate_bonds": int(len(positions)),
-        "n_mortgage_loans": int(len(mortgage_pool)),
-        "kupiec_exception_rate": float(backtest_summary.get("kupiec_exception_rate", 0.0)),
-        "false_safe_rate": false_safe["false_safe_rate"],
-        "traffic_light": traffic_light.get("traffic_light", "unknown"),
-        "traffic_light_exceptions": int(traffic_light.get("exceptions", 0)),
-        "pnl_attribution_status": pnl_summary.get("pla_proxy_status", "unknown"),
-        "pnl_actual_hypothetical_corr": float(pnl_summary.get("actual_hypothetical_corr", 0.0)),
-        "frtb_diag_rows": int(len(frtb_diag)),
-        "challenger_rows": int(len(challengers)),
-        "reverse_stress_rows": int(len(reverse_stress)),
-        "securitized_grid_rows": int(len(sec_grid)),
-        "stability_windows": int(len(stability)),
-        "reports_generated": len(list(reports.glob("*.md"))),
-        "model_inventory_rows": int(len(pd.read_csv(outputs / "model_inventory.csv"))) if (outputs / "model_inventory.csv").exists() else 0,
-        "public_source_catalog_rows": int(len(pd.read_csv(outputs / "public_data_source_catalog.csv"))) if (outputs / "public_data_source_catalog.csv").exists() else 0,
-    })
-    return {"root": str(root), "release_status": release_status, "run_summary": str(outputs / "run_summary.json")}
+    write_json(
+        outputs / "run_summary.json",
+        {
+            **context,
+            "n_risk_factor_days": int(len(panel)),
+            "n_corporate_bonds": int(len(positions)),
+            "n_mortgage_loans": int(len(mortgage_pool)),
+            "kupiec_exception_rate": float(
+                backtest_summary.get("kupiec_exception_rate", 0.0)
+            ),
+            "false_safe_rate": false_safe["false_safe_rate"],
+            "traffic_light": traffic_light.get("traffic_light", "unknown"),
+            "traffic_light_exceptions": int(traffic_light.get("exceptions", 0)),
+            "pnl_attribution_status": pnl_summary.get("pla_proxy_status", "unknown"),
+            "pnl_actual_hypothetical_corr": float(
+                pnl_summary.get("actual_hypothetical_corr", 0.0)
+            ),
+            "frtb_diag_rows": int(len(frtb_diag)),
+            "challenger_rows": int(len(challengers)),
+            "reverse_stress_rows": int(len(reverse_stress)),
+            "securitized_grid_rows": int(len(sec_grid)),
+            "stability_windows": int(len(stability)),
+            "reports_generated": len(list(reports.glob("*.md"))),
+            "model_inventory_rows": int(
+                len(pd.read_csv(outputs / "model_inventory.csv"))
+            )
+            if (outputs / "model_inventory.csv").exists()
+            else 0,
+            "public_source_catalog_rows": int(
+                len(pd.read_csv(outputs / "public_data_source_catalog.csv"))
+            )
+            if (outputs / "public_data_source_catalog.csv").exists()
+            else 0,
+        },
+    )
+    return {
+        "root": str(root),
+        "release_status": release_status,
+        "run_summary": str(outputs / "run_summary.json"),
+    }
 
 
 if __name__ == "__main__":

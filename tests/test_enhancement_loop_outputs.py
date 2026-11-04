@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,8 +20,16 @@ def test_backtesting_enhancement_outputs_exist():
 
 def test_residual_correction_does_not_increase_exception_rate():
     ablation = pd.read_csv(ROOT / "outputs" / "specialty_ablation_table.csv")
-    base = float(ablation.loc[ablation["module"] == "vanilla_historical_var", "exception_rate"].iloc[0])
-    corrected = float(ablation.loc[ablation["module"] == "residual_var_correction", "exception_rate"].iloc[0])
+    base = float(
+        ablation.loc[
+            ablation["module"] == "vanilla_historical_var", "exception_rate"
+        ].iloc[0]
+    )
+    corrected = float(
+        ablation.loc[
+            ablation["module"] == "residual_var_correction", "exception_rate"
+        ].iloc[0]
+    )
     assert corrected <= base
 
 

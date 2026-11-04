@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pathlib import Path
 import json
+from pathlib import Path
+
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,7 +33,11 @@ def test_pnl_attribution_proxy_passes_review_gates():
 
 def test_frtb_inspired_diagnostics_are_complete_and_bounded():
     diag = pd.read_csv(OUT / "frtb_inspired_diagnostics.csv")
-    assert set(diag["risk_factor_family"]) == {"rates", "corporate_credit", "securitized_proxy"}
+    assert set(diag["risk_factor_family"]) == {
+        "rates",
+        "corporate_credit",
+        "securitized_proxy",
+    }
     assert (diag["liquidity_horizon_days"] > 0).all()
     assert (diag["es_975"] >= diag["var_975"]).all()
     assert abs(float(diag["scaled_es_contribution_share"].sum()) - 1.0) < 1e-6
@@ -42,8 +47,14 @@ def test_challenger_selection_has_one_selected_model():
     challengers = pd.read_csv(OUT / "challenger_model_selection.csv")
     assert len(challengers) >= 3
     assert challengers["selected"].astype(str).str.lower().eq("true").sum() == 1
-    selected = challengers.loc[challengers["selected"].astype(str).str.lower().eq("true"), "candidate"].iloc[0]
-    assert selected in {"residual_corrected_var", "conservative_tail_envelope", "vanilla_historical_var"}
+    selected = challengers.loc[
+        challengers["selected"].astype(str).str.lower().eq("true"), "candidate"
+    ].iloc[0]
+    assert selected in {
+        "residual_corrected_var",
+        "conservative_tail_envelope",
+        "vanilla_historical_var",
+    }
 
 
 def test_reverse_stress_and_manifest_outputs_are_usable():

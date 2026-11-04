@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pathlib import Path
 import json
+from pathlib import Path
+
 import pandas as pd
 
 try:
@@ -19,11 +20,17 @@ def main(root: str = ".") -> None:
     summary_path = root / "outputs" / "run_summary.json"
     if summary_path.exists():
         st.json(json.loads(summary_path.read_text()))
-    for name in ["var_es_by_portfolio.csv", "stress_loss_by_scenario.csv", "kupiec_christoffersen_results.csv", "assumption_sensitivity_matrix.csv"]:
+    for name in [
+        "var_es_by_portfolio.csv",
+        "stress_loss_by_scenario.csv",
+        "kupiec_christoffersen_results.csv",
+        "assumption_sensitivity_matrix.csv",
+    ]:
         path = root / "outputs" / name
         if path.exists():
             st.subheader(name)
             st.dataframe(pd.read_csv(path))
+
 
 if __name__ == "__main__":
     main()

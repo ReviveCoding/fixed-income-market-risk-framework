@@ -1,14 +1,18 @@
 from __future__ import annotations
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 import pandas as pd
-from .synthetic_fallback import generate_market_data, generate_mortgage_pool
-from .fetch_fred_rates import fetch_fred_rates
+
 from .fetch_fred_oas import fetch_fred_oas
+from .fetch_fred_rates import fetch_fred_rates
+from .synthetic_fallback import generate_market_data, generate_mortgage_pool
 
 
-def load_market_data(root: Path, use_cached: bool = True) -> tuple[pd.DataFrame, pd.DataFrame, str]:
+def load_market_data(
+    root: Path, use_cached: bool = True
+) -> tuple[pd.DataFrame, pd.DataFrame, str]:
     """Load live public data, cached public-compatible samples, or deterministic synthetic fallback.
 
     Set environment variable FIMRF_USE_LIVE=1 to attempt live FRED downloads.

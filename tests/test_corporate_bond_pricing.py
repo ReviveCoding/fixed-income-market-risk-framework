@@ -1,5 +1,8 @@
 from fimrf.data_ingestion.synthetic_fallback import generate_market_data
-from fimrf.instruments.corporate_bond import generate_corporate_bonds, compute_sensitivities
+from fimrf.instruments.corporate_bond import (
+    compute_sensitivities,
+    generate_corporate_bonds,
+)
 
 
 def test_corporate_bond_sensitivities_positive():
