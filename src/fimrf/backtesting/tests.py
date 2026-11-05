@@ -9,9 +9,10 @@ from fimrf.utils import chi2_sf_df1
 
 
 def kupiec_pof(exceptions: pd.Series, alpha: float) -> dict:
-    x = int(exceptions.sum())
-    n = int(exceptions.count())
-    if n == 0:
+    """Test whether the observed VaR exception rate matches the expected rate."""
+    exception_count = int(exceptions.sum())
+    observation_count = int(exceptions.count())
+    if observation_count == 0:
         return {
             "n": 0,
             "exceptions": 0,
@@ -19,27 +20,35 @@ def kupiec_pof(exceptions: pd.Series, alpha: float) -> dict:
             "lr_pof": 0.0,
             "p_value": 1.0,
         }
-    phat = min(max(x / n, 1e-12), 1 - 1e-12)
-    p = alpha
-    log_l_null = (
-        (n - x) * math.log(1 - p) + x * math.log(p)
-        if x not in [0, n]
-        else (n - x) * math.log(1 - p) + x * math.log(max(p, 1e-12))
+    observed_exception_rate = min(
+        max(exception_count / observation_count, 1e-12), 1 - 1e-12
     )
-    log_l_alt = (n - x) * math.log(1 - phat) + x * math.log(phat)
-    lr = max(-2 * (log_l_null - log_l_alt), 0.0)
+    expected_exception_rate = alpha
+    null_log_likelihood = (
+        (observation_count - exception_count) * math.log(1 - expected_exception_rate)
+        + exception_count * math.log(expected_exception_rate)
+        if exception_count not in [0, observation_count]
+        else (observation_count - exception_count)
+        * math.log(1 - expected_exception_rate)
+        + exception_count * math.log(max(expected_exception_rate, 1e-12))
+    )
+    alternative_log_likelihood = (observation_count - exception_count) * math.log(
+        1 - observed_exception_rate
+    ) + exception_count * math.log(observed_exception_rate)
+    lr = max(-2 * (null_log_likelihood - alternative_log_likelihood), 0.0)
     return {
-        "n": n,
-        "exceptions": x,
-        "exception_rate": x / n,
+        "n": observation_count,
+        "exceptions": exception_count,
+        "exception_rate": exception_count / observation_count,
         "lr_pof": lr,
         "p_value": chi2_sf_df1(lr),
     }
 
 
 def christoffersen_independence(exceptions: pd.Series) -> dict:
-    e = exceptions.astype(int).to_numpy()
-    if len(e) < 2:
+    """Test whether consecutive VaR exception flags are independent."""
+    exception_flags = exceptions.astype(int).to_numpy()
+    if len(exception_flags) < 2:
         return {
             "lr_independence": 0.0,
             "p_value": 1.0,
@@ -49,28 +58,30 @@ def christoffersen_independence(exceptions: pd.Series) -> dict:
             "n11": 0,
         }
     n00 = n01 = n10 = n11 = 0
-    for a, b in zip(e[:-1], e[1:]):
-        if a == 0 and b == 0:
+    for previous_flag, current_flag in zip(exception_flags[:-1], exception_flags[1:]):
+        if previous_flag == 0 and current_flag == 0:
             n00 += 1
-        elif a == 0 and b == 1:
+        elif previous_flag == 0 and current_flag == 1:
             n01 += 1
-        elif a == 1 and b == 0:
+        elif previous_flag == 1 and current_flag == 0:
             n10 += 1
-        elif a == 1 and b == 1:
+        elif previous_flag == 1 and current_flag == 1:
             n11 += 1
 
     def safe_log(x):
         return math.log(max(x, 1e-12))
 
-    pi = (n01 + n11) / max(n00 + n01 + n10 + n11, 1)
-    pi01 = n01 / max(n00 + n01, 1)
-    pi11 = n11 / max(n10 + n11, 1)
-    ll_null = (n00 + n10) * safe_log(1 - pi) + (n01 + n11) * safe_log(pi)
+    exception_probability = (n01 + n11) / max(n00 + n01 + n10 + n11, 1)
+    exception_after_no_exception = n01 / max(n00 + n01, 1)
+    exception_after_exception = n11 / max(n10 + n11, 1)
+    ll_null = (n00 + n10) * safe_log(1 - exception_probability) + (
+        n01 + n11
+    ) * safe_log(exception_probability)
     ll_alt = (
-        n00 * safe_log(1 - pi01)
-        + n01 * safe_log(pi01)
-        + n10 * safe_log(1 - pi11)
-        + n11 * safe_log(pi11)
+        n00 * safe_log(1 - exception_after_no_exception)
+        + n01 * safe_log(exception_after_no_exception)
+        + n10 * safe_log(1 - exception_after_exception)
+        + n11 * safe_log(exception_after_exception)
     )
     lr = max(-2 * (ll_null - ll_alt), 0.0)
     return {
