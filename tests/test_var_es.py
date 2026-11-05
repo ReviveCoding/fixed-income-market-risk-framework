@@ -1,5 +1,6 @@
 import pandas as pd
-from fimrf.risk_models.var import historical_var, expected_shortfall, monte_carlo_var
+
+from fimrf.risk_models.var import expected_shortfall, historical_var, monte_carlo_var
 
 
 def test_var_es_positive_tail():

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
 import hashlib
 import json
 import platform
 import sys
+from pathlib import Path
+
 import pandas as pd
 
 
@@ -31,11 +32,13 @@ def build_reproducibility_manifest(root: Path) -> tuple[pd.DataFrame, dict]:
             size = p.stat().st_size
             if size > 10 * 1024 * 1024:
                 continue
-            rows.append({
-                "relative_path": str(p.relative_to(root)).replace("\\", "/"),
-                "bytes": int(size),
-                "sha256": sha256_file(p),
-            })
+            rows.append(
+                {
+                    "relative_path": str(p.relative_to(root)).replace("\\", "/"),
+                    "bytes": int(size),
+                    "sha256": sha256_file(p),
+                }
+            )
     manifest = pd.DataFrame(rows)
     metadata = {
         "python_version": sys.version.split()[0],

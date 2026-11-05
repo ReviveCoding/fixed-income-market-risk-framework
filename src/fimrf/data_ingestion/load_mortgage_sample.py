@@ -1,10 +1,21 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import pandas as pd
+
 from .synthetic_fallback import generate_mortgage_pool
 
-REQUIRED_COLUMNS = {"loan_id", "balance", "coupon", "term_months", "fico", "ltv", "delinquency_proxy", "prepay_score"}
+REQUIRED_COLUMNS = {
+    "loan_id",
+    "balance",
+    "coupon",
+    "term_months",
+    "fico",
+    "ltv",
+    "delinquency_proxy",
+    "prepay_score",
+}
 
 
 def load_mortgage_performance_sample(path: str | Path | None = None) -> pd.DataFrame:

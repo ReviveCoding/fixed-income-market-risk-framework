@@ -1,5 +1,8 @@
 from fimrf.data_ingestion.synthetic_fallback import generate_mortgage_pool
-from fimrf.instruments.securitized_proxy import build_tranche_cashflows, securitized_scenario_stress
+from fimrf.instruments.securitized_proxy import (
+    build_tranche_cashflows,
+    securitized_scenario_stress,
+)
 
 
 def test_tranche_waterfall_outputs():
